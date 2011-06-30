@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link href="default.css" rel="stylesheet" type="text/css" />
+    <title>Oakland Bike Racks Documentation</title>
+</head>
+
+<body id="documentation">
+
+<h1>Oakland Bicycle Facilities Map Application</h1>
+
+    <a href="default.html"><img src="images/app_screenshot.jpg" align="right" border="1" style="margin: 5px 5px 5px 5px;"></a>
+
+<h2>Overview</h2>
+    <p>The <a href="default.html">Oakland Bicycle Facilities Map Application</a> was put out by Oakland's <a href="http://www.oaklandpw.com/Page14.aspx">Bicycle and Pedestrian Facilities Program</a>. It uses the <a href="http://code.google.com/apis/maps/documentation/javascript/">Google Maps API V3</a> as a base. On top of the basic Google Map, we also included various KML layers exported from Oakland's GIS system.</p>
+
+<h2>Decision Not to Use The Google InfoWindow</h2>
+    <p>You may notice that when clicking on bike racks, we do not use a standard Google Maps InfoWindow. We made this decision for a number of reasons. First, we had some compatability issues when using InfoWindows with a KML layer. First, the tail of the InfoWindow did not center on the bike parking icon. Second, is that by default, the title of the marker is displayed in the InfoWindow. Below is some code that we wrote to circumvent these two issues.</p>
+
+    <p>var infowindow = new google.maps.InfoWindow(); // an info window to use <br>
+    function showInfoWindow(description, position) { // open the info window<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;infowindow.close();<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;infowindow.setOptions({<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content: '&lt;div class="infowindow"&gt;' + description + '&lt;/div&gt;',<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position: position,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pixelOffset: new google.maps.Size(-1, -12)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;});<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;infowindow.open(map);<br>
+    };
+    </p>
+    
+    <p>This code worked for a while, but it broke recently because of a problem with the kmlEvent.position variable. Google says in its ChangeLog: Deprecated properties KMLMouseEvent.position and FusionTablesMouseEvent.position have been removed. Use .latLng instead (so this looks like it could be fixed pretty easily). Also, in general, when you have an InfoWindow open, it blocks the screen and prevents other parking markers from being clicked.</p>
+    
+    <p>Thus, we decided to use a manually created window, which shows the data we want to show and does not clutter the screen as much. One issue with this approach however is that when a user clicks on a rack, there is no way to visually show the user which rack he or she clicked on (maybe this will be fixed in a future release). But in the worst case, the user can just click on the rack again.</p>
+
+<h2>Updating the Application Data</h2>
+
+    <h3>Open the ArcView Document</h3>
+        <p>The ArcView Document that contains all of the data for this application is located in the Bike-Ped_Program > Outreach > GoogleWebMap.</p>
+    
+    <h3>Exporting the KMZ File from ArcView</h3>
+        <p>Click on the ArcToolbox icon on the screen (or if you cannot see it...here is how to open the toolbox from the menus). Expand Conversion Tools. Expand the Export to KML icon and double click on 'Layer to KML'. Select the layer you want to export. For the second box, choose a place to save the exported file. The desktop should be fine. Next, set the scale as 1. Hit export. A dialog box should come up indicating that ArcView is exporting the layer to KML. When the export is done, you can close ArcView.</p>
+    
+    <h3>Placement on the Web</h3>
+        <p>Once you have the exported KMZ file from ArcMap, locate the appropriate KMZ file in the layers folder on the web for the layer you want to update. Replace it with the KMZ file. The bike facility application should be up to date. Note: sometimes changes do not appear right away; it may take a few hours to fully update itself. Also, if you have changed the symbology (meaning changed the colors of the lines or the icons), you will have to update the icons in the images folder by unzipping the KMZ file or by updating the rgb values in the legend section in default.php.</p>
+
+<h2>Known Issues</h2>
+    <ul>
+        <li>At high zoom levels, bike racks and wayfinding signs look like they are in the wrong place. As you zoom in, they move to the right place. Possible fix -- Define a &lt; hotSpot &gt; for your IconStyle, it does not default to the
+        centre.</li>
+        <li>Does not load in Internet Explorer 6 or 7</li>
+        <li>Fix special characters in infowindows</li>
+        <li>Fix standard google infowindow feature.</li>
+    </ul>
+
+<h2>Ideas for Future Development</h2>
+    <ul>
+        <li>Adding fun things, maybe things like commenting on the racks or something.</li>
+        <li>Maybe check this out (Portland's Export to KML feature): http://arcscripts.esri.com/details.asp?dbid=14273</li>
+        <li>Get bike rack locations to show up in streetview http://code.google.com/apis/maps/documentation/javascript/services.html#StreetViewMapUsage</li>
+        <li>Pop-up window for wayfinding signs with photo?</li>
+        <li>Look at KML network links</li>
+    </ul>
+
+<h2>Resources</h2>
+    <ul>
+        <li>Transportation and biking icons that might be of use. &lt;<a href="http://code.google.com/p/google-maps-icons/wiki/TransportationIcons">http://code.google.com/p/google-maps-icons/wiki/TransportationIcons</a>&gt;</li>
+        <li><a href="http://webhelp.esri.com/arcgisdesktop/9.3/index.cfm?id=226&pid=212&topicname=Setting_HTML_pop-up_properties_for_feature_layers">Information about the ArcGIS HTML Popup Tool</a></li>
+        <li><a href="http://www.w3schools.com/xsl/default.asp">XSL Tutorial</a>
+        <li><a href="http://www.lib.uwaterloo.ca/locations/umd/documents/exportToKMLarcScript.pdf">A KML Exporting Tool from Oregon</a></li>
+        <li><a href="http://code.google.com/apis/maps/documentation/javascript/maptypes.html">Stylizing Google Maps</a></li>
+    </ul>
+
+</body>
+</html>

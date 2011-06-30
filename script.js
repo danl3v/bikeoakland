@@ -1,0 +1,272 @@
+function initialize() {
+
+    $(document).ready(function() {
+
+        // SETTINGS
+        
+        var parking_display_type = 1;
+        // 1 for window attached to bottom
+        // 2 for classic google infowindow (not working right now)
+
+        // INITIALIZE THE MAP
+        
+        var oakland = new google.maps.LatLng(37.80340948481954, -122.25688934326172); 
+        var myOptions = { 
+            zoom: 13, 
+            center: oakland, 
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            streetViewControl: true,
+            navigationControl: true,
+            navigationControlOptions: {
+                position: google.maps.ControlPosition.RIGHT
+            }
+        };
+    
+        var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions); // display the map
+
+        // INITIALIZE THE LEGEND
+        $('input[name=development_striping]').attr('disabled', true);
+        $('input[name=development_signage]').attr('disabled', true);
+        $('#proposed_legend').hide();
+        $('#development_legend').hide();
+
+        // LAYERS
+
+        var existing_bikeways = new google.maps.KmlLayer( // add oakland's existing bikeways to the map
+            'http://bikeoakland.nfshost.com/layers/existing_bikeways.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true,
+               map: map });
+
+        var existing_signage = new google.maps.KmlLayer( // add oakland's wayfinding Signs to the map
+            'http://bikeoakland.nfshost.com/layers/existing_signage.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true,
+               map: map });
+
+        var existing_parking = new google.maps.KmlLayer( // add oakland's bike rack locations to map
+            'http://bikeoakland.nfshost.com/layers/existing_parking.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true,
+               map: map });
+
+        var proposed_bikeways = new google.maps.KmlLayer( // add oakland's proposed bikeways to the map (hidden by default)
+            'http://bikeoakland.nfshost.com/layers/proposed_bikeways.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true });
+               
+        var development_striping = new google.maps.KmlLayer( // add oakland's design bikeways to the map (hidden by default)
+            'http://bikeoakland.nfshost.com/layers/development_striping.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true });
+
+        var development_signage = new google.maps.KmlLayer( // add oakland's wayfinding Signs to the map
+            'http://bikeoakland.nfshost.com/layers/development_signage.kmz',
+            {  suppressInfoWindows: true,
+               preserveViewport: true });
+
+        // AN INFO WINDOW FOR USE LATER
+
+        var infowindow = new google.maps.InfoWindow(); // an info window to use 
+        
+        function showInfoWindow(description, position) { // open the info window
+            infowindow.close();
+            infowindow.setOptions({
+                content: '<div class="infowindow">' + description + '</div>',
+                position: position,
+                pixelOffset: new google.maps.Size(-1, -12)
+            });
+            infowindow.open(map);
+        };
+
+        // EVENT LISTENER
+
+        google.maps.event.addListener(existing_parking, 'click', function(kmlEvent) {
+
+            if (parking_display_type == 1) {
+                $('#infowindow').slideDown('fast');
+                $('#infowindow').html(kmlEvent.featureData.description);
+            }
+            else {
+                showInfoWindow(kmlEvent.featureData.description, kmlEvent.latLng);
+            }
+
+        });
+
+        // SHOW, HIDE LAYER FUNCTIONS
+
+        function hideLayer(layer) {
+            layer.setMap(null)
+        };
+
+        function showLayer(layer) {
+            layer.setMap(map)
+        };
+
+        // SHOW, HIDE LAYER, LEGEND FUNCTIONS
+
+        // RADIO BUTTON FUNCTIONS
+
+        function showExisting() {
+            $('input[name=existing_parking]').attr('disabled', false);
+            $('input[name=existing_bikeways]').attr('disabled', false);
+            $('input[name=existing_signage]').attr('disabled', false);
+            $('input[name=development_striping]').attr('disabled', true);
+            $('input[name=development_signage]').attr('disabled', true);
+
+            hideLayer(proposed_bikeways);
+            hideLayer(development_striping);
+            hideLayer(development_signage);
+
+            if ($('input[name=existing_bikeways]').attr('checked') == true) { // display bikeways first so it goes on the bottom
+                showLayer(existing_bikeways);
+            }
+            if ($('input[name=existing_signage]').attr('checked') == true) {
+                showLayer(existing_signage);
+            }
+            if ($('input[name=existing_parking]').attr('checked') == true) { // display bike parking last so it goes on top
+                showLayer(existing_parking);
+                if (parking_display_type == 1) {
+                    $('#infowindow').slideDown('slow');
+                }
+            }
+
+            $('#proposed_legend').hide();
+            $('#development_legend').hide();
+            $('#existing_legend').show('slow');
+
+        }
+
+        function showProposed() {
+            $('input[name=existing_parking]').attr('disabled', true);
+            $('input[name=existing_bikeways]').attr('disabled', true);
+            $('input[name=existing_signage]').attr('disabled', true);
+            $('input[name=development_striping]').attr('disabled', true);
+            $('input[name=development_signage]').attr('disabled', true);
+            
+            hideLayer(existing_parking);
+            hideLayer(existing_bikeways);
+            hideLayer(existing_signage);
+            hideLayer(development_striping);
+            hideLayer(development_signage);
+
+            showLayer(proposed_bikeways);
+
+            $('#existing_legend').hide();
+            $('#development_legend').hide();
+            $('#proposed_legend').show('slow');
+            $('#infowindow').slideUp('slow');
+
+        }
+
+        function showDevelopment() {
+            $('input[name=existing_parking]').attr('disabled', true);
+            $('input[name=existing_bikeways]').attr('disabled', true);
+            $('input[name=existing_signage]').attr('disabled', true);
+            $('input[name=development_striping]').attr('disabled', false);
+            $('input[name=development_signage]').attr('disabled', false);
+            
+            hideLayer(existing_parking);
+            hideLayer(existing_bikeways);
+            hideLayer(existing_signage);
+            hideLayer(proposed_bikeways);
+
+            if ($('input[name=development_signage]').attr('checked') == true) {
+                showLayer(development_signage);
+            }
+            if ($('input[name=development_striping]').attr('checked') == true) { // show striping last so it goes on top
+                showLayer(development_striping);
+            }
+
+            $('#existing_legend').hide();
+            $('#proposed_legend').hide();
+            $('#development_legend').show('slow');
+            $('#infowindow').slideUp('slow');
+
+        }
+
+        $('input[name=layer_option]').change(function() {
+            if ($('input[name=layer_option]:checked').val() == 'existing') {
+                showExisting();
+            }
+            else if ($('input[name=layer_option]:checked').val() == 'proposed') {
+                showProposed();
+            }
+            else {
+                showDevelopment();
+            }
+        });
+
+        // CHECKBOX FUNCTIONS
+
+        $('input[name=existing_parking]').click(function() {
+            if ($('input[name=existing_parking]').attr('checked') == true) {
+                showLayer(existing_parking);
+                $('#existing_parking_legend').show('slow');
+                if (parking_display_type == 1) {
+                    $('#infowindow').slideDown('slow');
+                }
+            }
+            else {
+                hideLayer(existing_parking);
+                $('#existing_parking_legend').hide('slow');
+                $('#infowindow').slideUp('slow');
+            }
+        });
+
+        $('input[name=existing_bikeways]').click(function() {
+            if ($('input[name=existing_bikeways]').attr('checked') == true) {
+                showLayer(existing_bikeways);
+                $('#existing_bikeways_legend').show('slow');
+                if ($('input[name=existing_signage]').attr('checked') == true) { // make sure parking and signage layers are displayed on top
+                    showLayer(existing_signage);
+                }
+                if ($('input[name=existing_parking]').attr('checked') == true) {
+                    showLayer(existing_parking);
+                }
+            }
+            else {
+                hideLayer(existing_bikeways);
+                $('#existing_bikeways_legend').hide('slow');
+            }
+        });
+
+        $('input[name=existing_signage]').click(function() {
+            if ($('input[name=existing_signage]').attr('checked') == true) {
+                showLayer(existing_signage);
+                $('#existing_signage_legend').show('slow');
+            }
+            else {
+                hideLayer(existing_signage);
+                $('#existing_signage_legend').hide('slow');
+            }
+        });
+
+        $('input[name=development_striping]').click(function() {
+            if ($('input[name=development_striping]').attr('checked') == true) {
+                showLayer(development_striping);
+                $('#development_striping_legend').show('slow');
+            }
+            else {
+                hideLayer(development_striping);
+                $('#development_striping_legend').hide('slow');
+            }
+        });
+
+        $('input[name=development_signage]').click(function() {
+            if ($('input[name=development_signage]').attr('checked') == true) {
+                showLayer(development_signage);
+                if ($('input[name=development_striping]').attr('checked') == true) {
+                    showLayer(development_striping);
+                }
+                $('#development_signage_legend').show('slow');
+            }
+            else {
+                hideLayer(development_signage);
+                $('#development_signage_legend').hide('slow');
+            }
+        });
+
+    });
+
+}

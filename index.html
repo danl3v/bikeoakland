@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Bicycle Facilities in Oakland</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
+    <script src="jquery-1.4.2.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body id="application" onLoad="initialize()">
+    
+    <div id="title"><a href="documentation.html"><img src="images/i-bike-sticker.gif"></a></div>
+    
+    <div id="legend">
+
+            <div id="layers">
+                <table>
+					<tr>
+						<td colspan="3"><strong>LAYERS</strong></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><input type="radio" name="layer_option" value="existing" checked></td>
+						<td colspan="3"><strong>Existing Facilities</strong></td>
+					</tr>
+					<tr>
+						<td style="text-align:center;">--</td>
+						<td style="text-align:center;"><input type="checkbox" name="existing_parking" checked></td>
+						<td colspan="2">Bike Parking</td>
+					</tr>
+					<tr>
+						<td style="text-align:center;">--</td>
+						<td style="text-align:center;"><input type="checkbox" name="existing_bikeways" checked></td>
+						<td colspan="2">Bikeways</td>
+					</tr>
+					<tr>
+						<td style="text-align:center;">--</td>
+						<td style="text-align:center;"><input type="checkbox" name="existing_signage" checked></td>
+						<td colspan="2">Bike Signs</td>
+					</tr>
+					<tr>
+						<td><input type="radio" name="layer_option" value="proposed"></td>
+						<td colspan="3"><strong>Proposed Bikeways</strong></td>
+					</tr>
+					<tr>
+						<td><input type="radio" name="layer_option" value="development"></td>
+						<td colspan="3"><strong>Project Development</strong></td>
+					</tr>
+					<tr>
+						<td style="text-align:center;">--</td>
+						<td style="text-align:center;"><input type="checkbox" name="development_striping" checked></td>
+						<td colspan="2">Bikeway Striping</td></tr>
+					<tr>
+						<td style="text-align:center;">--</td>
+						<td style="text-align:center;"><input type="checkbox" name="development_signage" checked></td>
+						<td colspan="2">Bikeway Signage</td>
+					</tr>
+                </table>
+            </div>
+        
+            <div id="existing_legend">
+                <div id="existing_parking_legend" style="border-top: 1px solid #000000">
+                    <table>
+                        <tr><td colspan="3"><strong>PARKING LEGEND</strong></td></tr>
+                        <tr><td>Owner -></td><td>Oakland</td><td>Other</td></tr>
+                        <tr><td>Bike Rack</td><td><img src="images/parking_rack_oakland.png"></td><td><img src="images/parking_rack_other.png"></td></tr>
+                            <tr><td>eLocker</td><td><img src="images/parking_locker_oakland.png"></td><td><img src="images/parking_locker_other.png"></td></tr>
+                        <tr><td>Bike Station</td><td><td><img src="images/parking_bike_station.png"></td></tr>
+                    </table>
+                 </div>
+                <div id="existing_bikeways_legend" style="border-top: 1px solid #000000">
+                    <table>
+                        <tr><td colspan="2"><strong>BIKEWAYS LEGEND</strong></td></tr>
+                        <tr><td style="background:rgb(73,109,82); width: 20px"></td><td>Bike Path</td></tr>
+                        <tr><td style="background:rgb(192,39,46)"></td><td>Bike Lane</td></tr>
+                        <tr><td style="background:rgb(21,83,161)"></td><td>Arterial Bike Route</td></tr>
+                        <tr><td style="background:rgb(128,50,144)"></td><td>Bike Boulevard</td></tr>
+                        <tr><td style="background:rgb(247,168,28)"></td><td>Bike Route</td></tr>
+                        <tr><td style="background:rgb(167,170,171)"></td><td>Proposed Bikeway</td></tr>
+                    </table>
+                </div>
+                <div id="existing_signage_legend" style="border-top: 1px solid #000000">
+                    <table>
+                        <tr><td colspan="2"><strong>SIGNAGE LEGEND</strong></td></tr>
+                        <tr><td><img src="images/signage_wayfinding.png"></td><td>Wayfinding Sign</td></tr>
+                        <tr><td><img src="images/signage_bike_lane.png"></td><td>Bike Lane Sign</td></tr>
+                        <tr><td><img src="images/signage_warning.png"></td><td>Warning Sign</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div id="proposed_legend" style="border-top: 1px solid #000000">
+                <table>
+                    <tr><td colspan="2"><strong>BIKEWAYS LEGEND</strong></td></tr>
+                    <tr><td style="background:rgb(73,109,82); width: 20px"></td><td>Bike Path</td></tr>
+                    <tr><td style="background:rgb(192,39,46)"></td><td>Bike Lane</td></tr>
+                    <tr><td style="background:rgb(21,83,161)"></td><td>Arterial Bike Route</td></tr>
+                    <tr><td style="background:rgb(128,50,144)"></td><td>Bike Boulevard</td></tr>
+                    <tr><td style="background:rgb(247,168,28)"></td><td>Bike Route</td></tr>
+                    <tr><td style="background:rgb(167,170,171)"></td><td>Proposed Bikeway</td></tr>
+                </table>
+            </div>
+
+            <div id="development_legend">
+                <div id="development_striping_legend" style="border-top: 1px solid #000000">
+                    <table>
+                        <tr><td colspan="2"><strong>STRIPING STATUS</strong></td></tr>
+                        <tr><td style="background:rgb(217,71,1); width: 20px"></td>
+                        <td>Installed or None Proposed</td></tr>
+                        <tr><td style="background:rgb(253,141,60)"></td><td>Designed</td></tr>
+                        <tr><td style="background:rgb(253,190,133)"></td><td>In Design</td></tr>
+                        <tr><td style="background:rgb(254,237,222)"></td><td>Next Priorities</td></tr>
+                        <tr><td style="background:rgb(130,130,130)"></td><td>Other Proposed Bikeways</td></tr>
+                    </table>
+                </div>
+                <div id="development_signage_legend" style="border-top: 1px solid #000000">
+                    <table>
+                        <tr><td colspan="2"><strong>SIGNAGE STATUS</strong></td></tr>
+                        <tr><td style="background:rgb(0,0,0); width: 20px"></td><td>Installed</td></tr>
+                        <tr><td style="background:rgb(136,65,157)"></td><td>Designed</td></tr>
+                        <tr><td style="background:rgb(140,150,198)"></td><td>In Design</td></tr>
+                        <tr><td style="background:rgb(179,207,227)"></td><td>Next Priorities</td></tr>
+                    </table>
+                </div>
+            </div>
+    </div>
+
+        <div id="infowindow" onClick="$('#infowindow').slideUp('slow')">
+            <h1><strong>BIKE PARKING INFORMATION WINDOW.</strong></h1>
+            <h2><strong>Click on a bike parking markers for more information.<br>
+            Click the window to close it.</strong></h2>
+        </div>
+        
+        <div id="map_canvas"></div>
+</body>
+
+</html>
